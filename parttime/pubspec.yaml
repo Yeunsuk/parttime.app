@@ -1,0 +1,74 @@
+name: parttime
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.3.3+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^3.3.2
+  riverpod_annotation: ^4.0.3
+
+  # networking
+  dio: ^5.4.3
+
+  # 인증/저장소
+  flutter_secure_storage: ^9.2.2
+
+  # 라우팅
+  go_router: ^13.2.0
+
+  # 달력
+  table_calendar: ^3.1.2
+
+  # 모델
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
+  # 유틸
+  intl: ^0.19.0
+
+  # 파일 선택 (계좌 QR 이미지 업로드)
+  file_picker: ^8.1.2
+
+  # QR 코드 자동 생성 (계좌번호 기반)
+  qr_flutter: ^4.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # build_runner
+  build_runner: ^2.4.13
+  freezed: ^3.2.5
+  json_serializable: ^6.8.0
+  riverpod_generator: ^4.0.4
+  riverpod_lint: ^3.1.4
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+
+# assets/icon/icon.png를 넣고 `dart run flutter_launcher_icons`로 생성
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icon/icon.png"
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+
+#flutter clean
+#flutter pub get
+#dart run build_runner build --delete-conflicting-outputs

@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    # admin-tool의 DB_HOST/DB_PORT/... 환경변수와 같은 이름으로 맞췄다 — 기본값은 기존과
+    # 동일한 localhost:5432라 값을 안 주면 지금까지와 똑같이 동작한다(하위 호환).
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:parttime}
+    username: ${DB_USER:parttime}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    naming:
+      strategy: com.fasterxml.jackson.databind.PropertyNamingStrategies$LowerCamelCaseStrategy
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000           # 24시간 (ms)
+  refresh-expiration: 1209600000 # 14일 (ms)
+
+auth:
+  owner-auth-code: ${OWNER_AUTH_CODE}
+
+security:
+  login-rate-limit:
+    max-retry: 5          # findTimeMinutes 안에 이 횟수 이상 실패하면 차단
+    find-time-minutes: 10 # 실패 횟수를 세는 관찰 기간(분)
+    ban-time-minutes: 15  # 차단 지속 시간(분)
+
+logging:
+  level:
+    org.springframework.security: DEBUG

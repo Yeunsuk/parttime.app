@@ -1,0 +1,11 @@
+# 서비스에 필요 없는 것들 — api/, parttime/은 각자 자기 .gitignore로 처리.
+admin-tool/
+.claude/
+
+# OS/에디터 잡동사니
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+build-web-for-api.sh
+CLAUDE.md
