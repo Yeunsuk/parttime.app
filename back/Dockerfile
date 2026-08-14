@@ -9,7 +9,7 @@ COPY build.gradle.kts settings.gradle.kts ./
 RUN ./gradlew --no-daemon dependencies || true
 COPY src ./src
 # 프론트 두 종류 중 서버에 실제로 배포할 쪽 한 줄만 살리고 나머지는 주석 처리한다.
-# - web-flutter: Flutter web 소스는 이 레포(서버 배포용 api/)엔 없다. build-web-for-api.sh로
+# - web-flutter: Flutter web 소스(front/)는 별도 빌드 단계(CI 또는 build-web-for-api.sh)에서
 #   미리 빌드해서 web-flutter/에 넣어둔 결과물을 그대로 정적 리소스로 복사한다. 그래서
 #   백엔드만 고칠 때는 이 스테이지에 Flutter SDK가 전혀 관여하지 않아 재배포가 빠르다.
 # - web-html: 빌드 단계 없는 순수 HTML/CSS/JS 버전(web-html/, 별도 빌드 스크립트 불필요).
