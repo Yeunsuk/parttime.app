@@ -63,3 +63,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             API_BASE_URL=${{ secrets.API_BASE_URL }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Pull and restart container
+        run: ~/parttime.app/deploy-from-registry.sh
