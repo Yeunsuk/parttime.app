@@ -276,51 +276,84 @@ public class PayrollService {
 
     // 근무지 소속 직원별 정산 (사장 전용). 각 직원이 설정한 정산기간(월급설정, 없으면 달력월)
     // 중 선택된 (year, month)에 해당하는 기간을 기준으로 근무기록을 집계한다.
+    // 이미 소속에서 빠진(삭제된) 직원도 그 달에 근무기록이 남아있으면 함께 보여준다 —
+    // 소속이 없어진 시점에 정산기간 설정(WorkplaceMember)도 같이 삭제되므로, 그런 직원은
+    // 항상 기본값(선택된 달의 1일~마지막일)으로 집계한다.
     @Transactional(readOnly = true)
     public List<SettlementResponse> getSettlement(
             Long ownerId, Long workplaceId, int year, int month) {
         validateOwner(ownerId, workplaceId);
 
-        // 이름순으로 가져온 뒤 정산방식(시간제 먼저) 기준으로 다시 정렬한다 —
-        // sorted()는 안정 정렬이라 같은 정산방식 안에서는 기존 이름순이 그대로 유지된다.
         List<WorkplaceMember> members = workplaceMemberRepository
-            .findByWorkplaceIdOrderByWorkerNameAsc(workplaceId)
-            .stream()
-            .sorted(Comparator.comparingInt(
-                m -> m.getPaymentTypeOrDefault() == PaymentType.COUNT ? 1 : 0))
-            .toList();
+            .findByWorkplaceIdOrderByWorkerNameAsc(workplaceId);
         YearMonth selectedMonth = YearMonth.of(year, month);
 
-        return members.stream().map(member -> {
-            int startDay = member.getPayPeriodStartDay() != null ? member.getPayPeriodStartDay() : 1;
-            LocalDate periodStart = resolvePeriodStart(selectedMonth, startDay);
-            LocalDate periodEnd = periodStart.plusMonths(1).minusDays(1);
+        List<SettlementResponse> results = new ArrayList<>(members.stream()
+            .map(member -> buildMemberSettlement(workplaceId, member, selectedMonth))
+            .toList());
 
-            List<WorkRecord> records = workRecordRepository
-                .findByWorkplaceIdAndWorkerIdAndClockInBetween(
-                    workplaceId, member.getWorker().getId(),
-                    periodStart.atStartOfDay(), periodEnd.atTime(23, 59, 59))
-                .stream()
-                .filter(r -> r.getClockOut() != null)
-                .toList();
+        Set<Long> currentMemberWorkerIds = members.stream()
+            .map(m -> m.getWorker().getId())
+            .collect(Collectors.toSet());
 
-            int totalMinutes = records.stream()
-                .mapToInt(r -> r.getWorkMinutes() != null ? r.getWorkMinutes() : 0).sum();
-            int totalWage = records.stream()
-                .mapToInt(r -> r.getWageAmount() != null ? r.getWageAmount() : 0).sum();
-            double totalCount = records.stream()
-                .mapToDouble(WorkRecord::getRecordCountOrDefault).sum();
+        LocalDate monthStart = selectedMonth.atDay(1);
+        LocalDate monthEnd = selectedMonth.atEndOfMonth();
+        Map<Long, List<WorkRecord>> removedWorkerRecords = workRecordRepository
+            .findByWorkplaceIdAndClockInBetween(
+                workplaceId, monthStart.atStartOfDay(), monthEnd.atTime(23, 59, 59))
+            .stream()
+            .filter(r -> r.getClockOut() != null)
+            .filter(r -> !currentMemberWorkerIds.contains(r.getWorker().getId()))
+            .collect(Collectors.groupingBy(r -> r.getWorker().getId()));
 
-            return new SettlementResponse(
-                member.getWorker().getId(),
-                member.getWorker().getName(),
-                periodStart.toString(),
-                periodEnd.toString(),
-                totalCount,
-                totalMinutes,
-                totalWage,
-                member.getPaymentTypeOrDefault().name());
-        }).toList();
+        removedWorkerRecords.values().forEach(records ->
+            results.add(toSettlementResponse(
+                records.get(0).getWorker().getId(),
+                records.get(0).getWorker().getName(),
+                monthStart, monthEnd, records,
+                records.get(0).getPaymentTypeOrDefault().name())));
+
+        // 시간제 먼저, 같은 방식 안에서는 이름순으로 정렬한다.
+        return results.stream()
+            .sorted(Comparator
+                .<SettlementResponse>comparingInt(
+                    r -> "COUNT".equals(r.getPaymentType()) ? 1 : 0)
+                .thenComparing(SettlementResponse::getWorkerName))
+            .toList();
+    }
+
+    private SettlementResponse buildMemberSettlement(
+            Long workplaceId, WorkplaceMember member, YearMonth selectedMonth) {
+        int startDay = member.getPayPeriodStartDay() != null ? member.getPayPeriodStartDay() : 1;
+        LocalDate periodStart = resolvePeriodStart(selectedMonth, startDay);
+        LocalDate periodEnd = periodStart.plusMonths(1).minusDays(1);
+
+        List<WorkRecord> records = workRecordRepository
+            .findByWorkplaceIdAndWorkerIdAndClockInBetween(
+                workplaceId, member.getWorker().getId(),
+                periodStart.atStartOfDay(), periodEnd.atTime(23, 59, 59))
+            .stream()
+            .filter(r -> r.getClockOut() != null)
+            .toList();
+
+        return toSettlementResponse(
+            member.getWorker().getId(), member.getWorker().getName(),
+            periodStart, periodEnd, records, member.getPaymentTypeOrDefault().name());
+    }
+
+    private SettlementResponse toSettlementResponse(
+            Long workerId, String workerName, LocalDate periodStart, LocalDate periodEnd,
+            List<WorkRecord> records, String paymentType) {
+        int totalMinutes = records.stream()
+            .mapToInt(r -> r.getWorkMinutes() != null ? r.getWorkMinutes() : 0).sum();
+        int totalWage = records.stream()
+            .mapToInt(r -> r.getWageAmount() != null ? r.getWageAmount() : 0).sum();
+        double totalCount = records.stream()
+            .mapToDouble(WorkRecord::getRecordCountOrDefault).sum();
+
+        return new SettlementResponse(
+            workerId, workerName, periodStart.toString(), periodEnd.toString(),
+            totalCount, totalMinutes, totalWage, paymentType);
     }
 
     // startDay가 속한, 선택된 (year,month)에 대응하는 정산 기간의 시작일을 구한다.

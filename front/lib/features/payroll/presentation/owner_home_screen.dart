@@ -1950,8 +1950,9 @@ class _OwnerHomeBody extends ConsumerStatefulWidget {
 class _OwnerHomeBodyState extends ConsumerState<_OwnerHomeBody> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  // 내역 목록을 스크롤/탭하면 달력을 週 단위로 줄여서 내역이 더 잘 보이게 하고,
-  // 달력을 다시 탭하면(날짜 선택/페이지 이동) 원래 크기로 되돌린다.
+  // 날짜를 선택하면 그 주만 남기고 바로 週 단위로 줄여서 내역이 더 잘 보이게 한다.
+  // 내역 목록을 스크롤/탭해도 같은 이유로 축소되고(_collapseCalendar), 선택 해제하거나
+  // 달을 넘기면(onPageChanged) 원래 월 단위로 되돌린다.
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
@@ -2083,9 +2084,13 @@ class _OwnerHomeBodyState extends ConsumerState<_OwnerHomeBody> {
       eventLoader: (day) => recordMap[_normalizeDate(day)] ?? [],
       onDaySelected: (selected, focused) {
         setState(() {
-          _selectedDay = isSameDay(_selectedDay, selected) ? null : selected;
+          final deselecting = isSameDay(_selectedDay, selected);
+          _selectedDay = deselecting ? null : selected;
           _focusedDay = focused;
-          _calendarFormat = CalendarFormat.month;
+          // 날짜를 선택하면 그 주만 남기고 바로 축소한다. 다시 눌러 선택 해제하면
+          // (드래그/스크롤로 축소했을 때와 달리) 원래 월 단위로 되돌린다.
+          _calendarFormat =
+              deselecting ? CalendarFormat.month : CalendarFormat.week;
         });
       },
       onPageChanged: (focused) {

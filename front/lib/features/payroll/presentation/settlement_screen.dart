@@ -95,6 +95,12 @@ class _SettlementScreenState extends ConsumerState<SettlementScreen> {
       month: _focusedMonth.month,
     );
     final settlementAsync = ref.watch(settlementProvider(param));
+    // 시간제 직원은 정산액 0원이면 그 달엔 표시하지 않는다. 횟수제는 0회여도 그대로 보여준다.
+    final visibleRowsAsync = settlementAsync.whenData(
+      (rows) => rows
+          .where((r) => !(r.paymentType == 'TIME' && r.totalWage == 0))
+          .toList(),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +114,7 @@ class _SettlementScreenState extends ConsumerState<SettlementScreen> {
                   )
                 : const Icon(Icons.camera_alt_outlined),
             tooltip: '캡처',
-            onPressed: (settlementAsync.value?.isNotEmpty ?? false)
+            onPressed: (visibleRowsAsync.value?.isNotEmpty ?? false)
                 ? _captureAndDownload
                 : null,
           ),
@@ -138,12 +144,17 @@ class _SettlementScreenState extends ConsumerState<SettlementScreen> {
             ),
           ),
           Expanded(
-            child: settlementAsync.when(
+            child: visibleRowsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('오류: $e')),
               data: (rows) {
                 if (rows.isEmpty) {
-                  return const Center(child: Text('소속된 직원이 없습니다.'));
+                  final hasWorkers = settlementAsync.value?.isNotEmpty ?? false;
+                  return Center(
+                    child: Text(
+                      hasWorkers ? '이번 달 정산 내역이 없습니다.' : '소속된 직원이 없습니다.',
+                    ),
+                  );
                 }
                 return SingleChildScrollView(
                   child: RepaintBoundary(
