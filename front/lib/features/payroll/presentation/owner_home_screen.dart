@@ -2083,14 +2083,22 @@ class _OwnerHomeBodyState extends ConsumerState<_OwnerHomeBody> {
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       eventLoader: (day) => recordMap[_normalizeDate(day)] ?? [],
       onDaySelected: (selected, focused) {
+        final deselecting = isSameDay(_selectedDay, selected);
         setState(() {
-          final deselecting = isSameDay(_selectedDay, selected);
           _selectedDay = deselecting ? null : selected;
           _focusedDay = focused;
-          // 날짜를 선택하면 그 주만 남기고 바로 축소한다. 다시 눌러 선택 해제하면
-          // (드래그/스크롤로 축소했을 때와 달리) 원래 월 단위로 되돌린다.
-          _calendarFormat =
-              deselecting ? CalendarFormat.month : CalendarFormat.week;
+        });
+        // 날짜를 선택하면 그 주만 남기고 바로 축소한다. 다시 눌러 선택 해제하면
+        // (드래그/스크롤로 축소했을 때와 달리) 원래 월 단위로 되돌린다.
+        // TableCalendar가 날짜 선택과 동시에 자체적으로 페이지 전환을 처리하므로,
+        // 같은 프레임에서 calendarFormat까지 같이 바꾸면 그 전환과 충돌해 엉뚱한
+        // 달로 넘어가는 버그가 있었다 — 한 프레임 늦춰서 적용한다.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final target = deselecting ? CalendarFormat.month : CalendarFormat.week;
+          if (_calendarFormat != target) {
+            setState(() => _calendarFormat = target);
+          }
         });
       },
       onPageChanged: (focused) {
