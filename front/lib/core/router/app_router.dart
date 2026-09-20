@@ -4,13 +4,8 @@ import '../../features/account/presentation/account_popup_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/auth/presentation/auth_provider.dart';
-import 'package:parttime/features/work_record/presentation/worker_home_screen.dart';
-import '../../features/work_record/presentation/worker_calendar_screen.dart';
-import '../../features/payroll/presentation/owner_home_screen.dart';
-import '../../features/payroll/presentation/settlement_screen.dart';
-import '../../features/payroll/presentation/worker_detail_screen.dart';
-import '../../features/workplace/presentation/workplace_screen.dart';
 import '../../shared/widgets/splash_screen.dart';
+import 'deferred_screens.dart';
 
 part 'app_router.g.dart';
 
@@ -52,15 +47,15 @@ GoRouter appRouter(Ref ref) {
       GoRoute(path: '/splash',           builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login',            builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/signup',           builder: (_, _) => const SignupScreen()),
-      GoRoute(path: '/worker/home',      builder: (_, _) => const WorkerHomeScreen()),
-      GoRoute(path: '/worker/calendar',  builder: (_, _) => const WorkerCalendarScreen()),
-      GoRoute(path: '/worker/workplace', builder: (_, _) => const WorkplaceScreen()),
-      GoRoute(path: '/owner/home',       builder: (_, _) => const OwnerHomeScreen()),
+      GoRoute(path: '/worker/home',      builder: (_, _) => workerHomeScreen()),
+      GoRoute(path: '/worker/calendar',  builder: (_, _) => workerCalendarScreen()),
+      GoRoute(path: '/worker/workplace', builder: (_, _) => workplaceScreen()),
+      GoRoute(path: '/owner/home',       builder: (_, _) => ownerHomeScreen()),
       GoRoute(
         path: '/owner/worker-detail',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return WorkerDetailScreen(
+          return workerDetailScreen(
             workplaceId: extra['workplaceId'] as int,
             workerId: extra['workerId'] as int,
             workerName: extra['workerName'] as String,
@@ -73,7 +68,7 @@ GoRouter appRouter(Ref ref) {
         path: '/owner/settlement',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return SettlementScreen(
+          return settlementScreen(
             workplaceId: extra['workplaceId'] as int,
             workplaceName: extra['workplaceName'] as String,
           );

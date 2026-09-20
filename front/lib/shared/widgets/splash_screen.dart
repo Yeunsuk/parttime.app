@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/router/deferred_screens.dart';
 import '../../core/theme/app_colors.dart';
 import '../../features/auth/domain/user_model.dart';
 import '../../features/auth/presentation/auth_provider.dart';
@@ -38,7 +39,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<UserModel?> _resolveUser() async {
     try {
-      return await ref.read(authStateProvider.future);
+      final user = await ref.read(authStateProvider.future);
+      // 역할을 알게 된 즉시 그 역할의 첫 화면 코드를 받아둔다 — 최소 1초 로딩 화면이
+      // 어차피 떠 있으므로 그 시간에 겹쳐서 받으면 화면 전환 시 추가 대기가 없다.
+      // 실패해도 무시: 실제 화면 진입 시 DeferredScreen이 다시 시도한다.
+      if (user != null) {
+        await preloadLanding(user.role).catchError((_) {});
+      }
+      return user;
     } catch (_) {
       return null;
     }
