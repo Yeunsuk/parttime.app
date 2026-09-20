@@ -37,6 +37,9 @@ jobs:
         run: |
           rm -rf back/web-flutter
           cp -r front/build/web back/web-flutter
+          # 브라우저는 CanvasKit을 Google CDN(gstatic)에서 받으므로 빌드 산출물의 로컬
+          # canvaskit/(약 38MB)은 쓰이지 않는다 — 이미지/jar 용량만 키워서 뺀다.
+          rm -rf back/web-flutter/canvaskit
 
       - name: Log in to GHCR
         uses: docker/login-action@v4

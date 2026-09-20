@@ -1,20 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+  <base href="/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -26,21 +13,17 @@
   <meta name="apple-mobile-web-app-title" content="알바시간">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <!-- 파비콘은 data URI로 인라인 — 별도 요청을 없애기 위함 -->
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAALhJREFUeJxjYUAAfij9kRQxFiSJNCjdTYoYyIA+BgaGRAYGBnaoRBWSYkJiC0AGJDEwMIgAnVSIxbZSPGL9DAwMb0AG/GdgYPjDwMAwiwET4BMD6fkPMoCbgYFhOxaFxABukAE/gKwGMg2wBhnwl4GB4SRUQBtKXyWS/xc5GkGgAkrHEslnQDegg0Q+hgHDwAWxJPLBBoCiZB8DA8NPdEkCAJQnroIMcGZgYNBjYGBgItGAfwwMDJcAtZIs/oZ5aBMAAAAASUVORK5CYII=">
 
   <title>알바시간</title>
-  <link rel="manifest" href="manifest.json">
+
+  <!-- main.dart.js를 부트스트랩 스크립트가 실행되길 기다리지 않고 HTML을 받자마자 같이
+       내려받기 시작한다 (Tailscale Funnel 경유 시 요청 단계마다 왕복 지연이 붙기 때문). -->
+  <link rel="preload" href="main.dart.js" as="script">
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- flutter_bootstrap.js도 별도 파일 요청 없이 여기에 인라인으로 박힌다. -->
+  <script>{{flutter_bootstrap_js}}</script>
 </body>
 </html>
