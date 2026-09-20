@@ -20,8 +20,23 @@ spring:
     naming:
       strategy: com.fasterxml.jackson.databind.PropertyNamingStrategies$LowerCamelCaseStrategy
 
+  web:
+    resources:
+      cache:
+        # 정적 파일(Flutter 웹 번들)에 Cache-Control이 없으면 Spring Security가 기본으로
+        # no-store를 붙여서 브라우저가 매번 3MB+ 번들을 통째로 다시 받는다. no-cache로 명시하면
+        # 브라우저가 저장은 해두고 매번 Last-Modified로 재확인만 한다(변경 없으면 304, 본문 없음).
+        # Flutter 번들은 파일명에 해시가 없어서 max-age를 길게 주면 배포 후에도 옛 버전이 남는다.
+        cachecontrol:
+          no-cache: true
+
 server:
   port: 8080
+  # Flutter 웹 번들(main.dart.js 약 3.4MB)이 압축 없이 나가서 느린 회선에서 로딩이 길었다.
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,text/javascript,application/javascript,application/json,image/svg+xml,font/otf,font/ttf
+    min-response-size: 1024
 
 jwt:
   secret: ${JWT_SECRET}
