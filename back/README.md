@@ -95,7 +95,7 @@ Spring Boot 진입점. `main()`에서 JVM 기본 타임존을 `Asia/Seoul`로 �
 ### `global/config`
 
 - `JpaConfig.java` — `@EnableJpaAuditing` (엔티티의 `@CreatedDate` 자동 채움 활성화)
-- `SecurityConfig.java` — Security 설정: CSRF 비활성화, CORS 전체 허용(Bearer 토큰 기반이라 쿠키 CSRF 리스크 없음), 세션 무상태(stateless), `JwtFilter` 등록, `signup`/`login`/`refresh`만 인증 예외(그 외 `/api/**`는 전부 인증 필요), 웹앱 정적 리소스 경로는 인증 없이 허용
+- `SecurityConfig.java` — Security 설정: CSRF 비활성화, CORS 전체 허용(Bearer 토큰 기반이라 쿠키 CSRF 리스크 없음), 세션 무상태(stateless), `JwtFilter` 등록, `signup`/`login`/`refresh`만 인증 예외(그 외 `/api/**`는 전부 인증 필요, 토큰이 없거나 만료/무효면 스프링 기본값인 403이 아니라 **401** — 프론트가 401일 때만 리프레시 토큰으로 재발급하기 때문), 웹앱 정적 리소스 경로는 인증 없이 허용
 
 ### `global/exception`
 
