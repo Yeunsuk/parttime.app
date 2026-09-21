@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/workplace_repository.dart';
 import '../domain/workplace_model.dart';
+import 'initial_workplaces.dart';
 
 part 'workplace_provider.g.dart';
 
@@ -9,6 +10,9 @@ part 'workplace_provider.g.dart';
 class MyWorkplaces extends _$MyWorkplaces {
   @override
   Future<List<WorkplaceModel>> build() async {
+    // 방금 로그인/가입했다면 그 응답에 이미 들어있는 목록을 쓴다 (네트워크 왕복 생략).
+    final seeded = ref.read(initialWorkplacesProvider).take();
+    if (seeded != null) return seeded;
     return ref.read(workplaceRepositoryProvider).getMyWorkplaces();
   }
 

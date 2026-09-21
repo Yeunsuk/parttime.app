@@ -2,11 +2,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../core/error/app_exception.dart';
+import '../../workplace/domain/workplace_model.dart';
 import '../domain/user_model.dart';
 import 'auth_api.dart';
 import 'package:dio/dio.dart';
 
 part 'auth_repository.g.dart';
+
+// 로그인/회원가입 성공 결과. workplaces는 응답에 같이 실려온 내 근무지 목록(없을 수도 있음).
+typedef AuthResult = ({UserModel user, List<WorkplaceModel>? workplaces});
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
@@ -21,26 +25,26 @@ class AuthRepository {
 
   AuthRepository(this._api, this._storage);
 
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthResult> login(String email, String password) async {
     try {
       final res = await _api.login(email, password);
       await _storage.saveToken(res.accessToken);
       await _storage.saveRefreshToken(res.refreshToken);
       await _storage.saveLastCredentials(email, password);
-      return res.user;
+      return (user: res.user, workplaces: res.workplaces);
     } on DioException catch (e) {
       throw _authError(e);
     }
   }
 
-  Future<UserModel> signup(String email, String password, String name,
+  Future<AuthResult> signup(String email, String password, String name,
       String role, String? ownerAuthCode) async {
     try {
       final res = await _api.signup(email, password, name, role, ownerAuthCode);
       await _storage.saveToken(res.accessToken);
       await _storage.saveRefreshToken(res.refreshToken);
       await _storage.saveLastCredentials(email, password);
-      return res.user;
+      return (user: res.user, workplaces: res.workplaces);
     } on DioException catch (e) {
       throw _authError(e);
     }

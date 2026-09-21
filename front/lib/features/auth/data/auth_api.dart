@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../workplace/domain/workplace_model.dart';
 import '../domain/user_model.dart';
 
 class AuthApi {
@@ -38,16 +39,22 @@ class AuthResponse {
   final String accessToken;
   final String refreshToken;
   final UserModel user;
+  // 로그인/회원가입 응답에만 들어있다(리프레시에는 없음).
+  final List<WorkplaceModel>? workplaces;
 
   AuthResponse({
     required this.accessToken,
     required this.refreshToken,
     required this.user,
+    this.workplaces,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
         accessToken: json['accessToken'] as String,
         refreshToken: json['refreshToken'] as String,
         user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+        workplaces: (json['workplaces'] as List?)
+            ?.map((e) => WorkplaceModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
       );
 }

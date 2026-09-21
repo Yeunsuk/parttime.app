@@ -49,6 +49,7 @@ flutter run --dart-define=API_BASE_URL=https://<서버 주소>/api
 - 정산 화면(`settlement_screen.dart`)은 시간제 직원이 그 달 정산액 0원이면 목록에서 생략한다. 횟수제는 0회여도 표시.
 - 사장 홈 화면 달력(`owner_home_screen.dart`)은 날짜를 선택하면 바로 그 주만 남기고 축소되고, 선택을 해제하면 월 단위로 되돌아간다.
 - 첫 로딩 요청 수/단계를 줄이려고(Tailscale Funnel 경유 시 요청 단계마다 왕복 지연이 붙는다) `web/index.html`에서 `flutter_bootstrap.js`를 `{{flutter_bootstrap_js}}`로 인라인하고 `main.dart.js`와 시작 시 항상 받는 `FontManifest.json`·`MaterialIcons` 폰트를 preload하며(엔진이 `main.dart.js` 실행 후에야 순서대로 받아서 왕복 지연이 두 번 더 붙기 때문), 파비콘은 data URI로 넣고 PWA `manifest.json`은 뺐다. 역할별 화면(`core/router/owner_screens.dart`, `worker_screens.dart`)은 `deferred as`로 역할당 조각 하나씩만 분리해 로그인 후 필요한 쪽만 받는다 — 분리 지점을 화면마다 따로 두면 조각 파일이 27개까지 늘어난다.
+- 로그인 왕복을 줄이려고 (1) 로그인 화면이 뜨면 사장/근로자 화면 조각을 미리 받아두고(`LoginScreen`), (2) 로그인/회원가입 응답에 실려온 근무지 목록을 `initialWorkplacesProvider`로 넘겨 `MyWorkplaces`가 처음 빌드될 때 `/workplaces/my` 호출 없이 그 값을 쓴다(한 번 쓰면 비워지고, 이후 갱신은 평소처럼 API 호출).
 - 정산 PNG 캡처는 웹에서만 지원 (`dart:html` 기반 다운로드, `png_download_web.dart`/`_stub.dart`로 분기).
 
 API 엔드포인트 전체 목록은 저장소 루트의 [API.md](../API.md) 참고.

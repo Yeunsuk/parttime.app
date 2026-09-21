@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/storage/secure_storage.dart';
+import '../../workplace/presentation/initial_workplaces.dart';
 import '../data/auth_repository.dart';
 import '../domain/user_model.dart';
 
@@ -33,17 +34,24 @@ class AuthState extends _$AuthState {
 
   Future<void> login(String email, String password) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() =>
-      ref.read(authRepositoryProvider).login(email, password),
-    );
+    state = await AsyncValue.guard(() async {
+      final result =
+          await ref.read(authRepositoryProvider).login(email, password);
+      ref.read(initialWorkplacesProvider).seed(result.workplaces);
+      return result.user;
+    });
   }
 
   Future<void> signup(String email, String password, String name, String role,
       [String? ownerAuthCode]) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => ref
-        .read(authRepositoryProvider)
-        .signup(email, password, name, role, ownerAuthCode));
+    state = await AsyncValue.guard(() async {
+      final result = await ref
+          .read(authRepositoryProvider)
+          .signup(email, password, name, role, ownerAuthCode);
+      ref.read(initialWorkplacesProvider).seed(result.workplaces);
+      return result.user;
+    });
   }
 
   Future<void> logout() async {

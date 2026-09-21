@@ -33,7 +33,7 @@ final class MyWorkplacesProvider
   MyWorkplaces create() => MyWorkplaces();
 }
 
-String _$myWorkplacesHash() => r'edbff7201d6e8db4bf66a24ca8b42e25817b92bf';
+String _$myWorkplacesHash() => r'd578ede162b7e7529942079867295275f13fcac4';
 
 abstract class _$MyWorkplaces extends $AsyncNotifier<List<WorkplaceModel>> {
   FutureOr<List<WorkplaceModel>> build();

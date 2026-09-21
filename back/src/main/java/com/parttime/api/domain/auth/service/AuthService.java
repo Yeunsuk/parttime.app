@@ -5,6 +5,8 @@ import com.parttime.api.domain.auth.dto.LoginRequest;
 import com.parttime.api.domain.auth.dto.SignupRequest;
 import com.parttime.api.domain.auth.dto.UserResponse;
 import com.parttime.api.domain.auth.repository.UserRepository;
+import com.parttime.api.domain.workplace.dto.WorkplaceResponse;
+import com.parttime.api.domain.workplace.service.WorkplaceService;
 import com.parttime.api.entity.User;
 import com.parttime.api.global.exception.BusinessException;
 import com.parttime.api.global.exception.ErrorCode;
@@ -15,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final WorkplaceService workplaceService;
 
     // 사장 계정 가입 시 요구되는 인증코드 (아무나 사장으로 가입하지 못하도록 막는 용도)
     @Value("${auth.owner-auth-code}")
@@ -46,7 +51,8 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return issueTokens(user);
+        // 방금 가입한 계정은 근무지가 있을 수 없다.
+        return issueTokens(user, List.of());
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +64,8 @@ public class AuthService {
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        return issueTokens(user);
+        return issueTokens(user,
+            workplaceService.getMyWorkplaces(user.getId(), user.getRole().name()));
     }
 
     // 리프레시 토큰으로 액세스 토큰 재발급 (리프레시 토큰도 함께 회전)
@@ -84,8 +91,12 @@ public class AuthService {
     }
 
     private AuthResponse issueTokens(User user) {
+        return issueTokens(user, null);
+    }
+
+    private AuthResponse issueTokens(User user, List<WorkplaceResponse> workplaces) {
         String accessToken = jwtProvider.generateToken(user.getId(), user.getRole().name());
         String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name());
-        return new AuthResponse(accessToken, refreshToken, user);
+        return new AuthResponse(accessToken, refreshToken, user, workplaces);
     }
 }

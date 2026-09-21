@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_version.dart';
+import '../../../core/router/deferred_screens.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import 'auth_provider.dart';
@@ -23,6 +24,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
     _loadLastCredentials();
+    // 어느 역할로 로그인할지 모르므로 사장/근로자 화면 코드를 둘 다 미리 받아둔다 — 로그인이
+    // 끝난 뒤에야 받기 시작하면 화면 전환마다 왕복 한 번(약 0.3초)을 그대로 기다리게 된다.
+    // 합쳐서 gzip 기준 100KB 남짓이고, 실패해도 무시(실제로 그 화면에 들어갈 때 다시 시도).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      preloadLanding('OWNER').catchError((_) {});
+      preloadLanding('WORKER').catchError((_) {});
+    });
   }
 
   // 로그아웃해도 마지막으로 로그인했던 아이디/비밀번호는 그대로 남겨둔다.

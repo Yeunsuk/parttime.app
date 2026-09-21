@@ -23,15 +23,15 @@
 
 **POST /signup**
 - 요청: `{ email, password, name, role: "OWNER"|"WORKER", ownerAuthCode }` — `role=OWNER`일 때만 `ownerAuthCode`가 서버의 `OWNER_AUTH_CODE`와 일치해야 함
-- 응답: `AuthResponse` — `{ accessToken, refreshToken, user: { id, email, name, role } }`
+- 응답: `AuthResponse` — `{ accessToken, refreshToken, user: { id, email, name, role }, workplaces }`. 가입 직후라 `workplaces`는 항상 빈 배열.
 
 **POST /login**
 - 요청: `{ email, password }`
-- 응답: `AuthResponse` (위와 동일). 연속 실패 시 IP 기준 rate limit 걸림.
+- 응답: `AuthResponse` (위와 동일). `workplaces`는 `GET /workplaces/my`와 같은 `WorkplaceResponse[]` — 로그인 직후 그 API를 다시 호출하지 않아도 되게 같이 내려준다. 연속 실패 시 IP 기준 rate limit 걸림.
 
 **POST /refresh**
 - 요청: `{ refreshToken }`
-- 응답: `AuthResponse`
+- 응답: `AuthResponse` — 이 응답에서만 `workplaces`가 `null`.
 
 **GET /me**
 - 응답: `UserResponse` — `{ id, email, name, role }`
