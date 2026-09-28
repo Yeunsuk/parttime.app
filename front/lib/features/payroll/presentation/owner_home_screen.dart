@@ -1964,6 +1964,22 @@ class _OwnerHomeBodyState extends ConsumerState<_OwnerHomeBody> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
+  void initState() {
+    super.initState();
+    // "직원 관리"/"근무기록 추가" 다이얼로그와 정산 화면은 실제로 열 때만 데이터를 받는데,
+    // 둘 다 keepAlive라 한 번 받아두면 그 뒤로는 즉시 뜬다. 홈 화면이 뜬 직후 미리
+    // 받아둬서, 처음 여는 순간에도 기다리지 않게 한다. ignore()는 성공/실패 모두
+    // 조용히 흘려보낸다 — 실패하면 실제로 열 때 다시 시도한다.
+    ref.read(workplaceWorkersProvider(widget.workplace.id).future).ignore();
+    final settlementParam = (
+      workplaceId: widget.workplace.id,
+      year: _focusedDay.year,
+      month: _focusedDay.month,
+    );
+    ref.read(settlementProvider(settlementParam).future).ignore();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final param = (
       workplaceId: widget.workplace.id,
