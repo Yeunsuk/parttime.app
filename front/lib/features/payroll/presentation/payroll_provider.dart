@@ -38,8 +38,11 @@ Future<List<PayrollDetailModel>> workerDetail(
       );
 }
 
-// 근무지 소속 직원별 정산 (각자 정산기간 기준, 선택된 (year, month)가 속한 기간)
-@riverpod
+// 근무지 소속 직원별 정산 (각자 정산기간 기준, 선택된 (year, month)가 속한 기간). 정산 화면을
+// 닫을 때마다(autoDispose 기본값) 캐시가 버려져 다시 열 때마다 네트워크를 새로 타던 것을
+// keepAlive로 막는다. 대신 근무기록 변경(RecordModify)과 정산에 영향을 주는 직원 설정 변경
+// (추가/퇴장/정산기간/정산방식 — owner_home_screen.dart)에서 명시적으로 invalidate한다.
+@Riverpod(keepAlive: true)
 Future<List<SettlementModel>> settlement(Ref ref, PayrollParam param) async {
   return ref
       .read(payrollRepositoryProvider)
@@ -83,6 +86,7 @@ class RecordModify extends _$RecordModify {
     if (!state.hasError) {
       ref.invalidate(workerDetailProvider);
       ref.invalidate(workplaceRecordsProvider);
+      ref.invalidate(settlementProvider);
     }
   }
 }

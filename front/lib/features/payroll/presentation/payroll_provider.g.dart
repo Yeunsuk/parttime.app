@@ -190,7 +190,7 @@ final class SettlementProvider
   }) : super(
          retry: null,
          name: r'settlementProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -228,7 +228,7 @@ final class SettlementProvider
   }
 }
 
-String _$settlementHash() => r'd3ba4614dda15926ac63d38a1cc9fd3b6a691388';
+String _$settlementHash() => r'8b7db0b1f3d6c787718d34b34d755594190de353';
 
 final class SettlementFamily extends $Family
     with
@@ -242,7 +242,7 @@ final class SettlementFamily extends $Family
         name: r'settlementProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   SettlementProvider call(PayrollParam param) =>
@@ -284,7 +284,7 @@ final class RecordModifyProvider
   }
 }
 
-String _$recordModifyHash() => r'bd1d81158a9a87b1842e36e765a2585b5063b907';
+String _$recordModifyHash() => r'01fcd02a3fac806db36c5d687234231a29d18403';
 
 abstract class _$RecordModify extends $Notifier<AsyncValue<void>> {
   AsyncValue<void> build();

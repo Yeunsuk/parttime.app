@@ -770,6 +770,8 @@ Future<void> _showAddMemberDialog(
     // 지금 화면에서 실제로 watch 중인 ref로 직접 다시 무효화해서, 목록이
     // 확실히 바로 갱신되도록 한다.
     ref.invalidate(workplaceWorkersProvider(workplaceId));
+    // 새 직원이 정산 목록에도 반영되도록 (settlementProvider도 keepAlive라 자동 갱신 안 됨).
+    ref.invalidate(settlementProvider);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('추가되었습니다.')),
     );
@@ -860,6 +862,8 @@ Future<void> _showRemoveMemberConfirm(
     // 지금 화면에서 실제로 watch 중인 ref로 직접 다시 무효화해서, 목록이
     // 확실히 바로 갱신되도록 한다.
     ref.invalidate(workplaceWorkersProvider(workplaceId));
+    // 내보낸 직원도(그 달 근무기록이 남아있으면) 정산엔 계속 표시되므로 다시 불러온다.
+    ref.invalidate(settlementProvider);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${worker.name}님을 내보냈습니다.')),
     );
@@ -1356,6 +1360,8 @@ Future<void> _showPayPeriodDialog(
     );
   } else {
     ref.invalidate(workplaceWorkersProvider(workplaceId));
+    // 정산기간이 바뀌면 그 직원의 정산 집계 자체가 달라지므로 다시 불러온다.
+    ref.invalidate(settlementProvider);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('정산 기간이 저장되었습니다.')),
     );
@@ -1449,6 +1455,8 @@ Future<void> _showPaymentTypeDialog(
     );
   } else {
     ref.invalidate(workplaceWorkersProvider(workplaceId));
+    // 정산방식(시간/횟수)이 바뀌면 그 직원의 정산 표시 자체가 달라지므로 다시 불러온다.
+    ref.invalidate(settlementProvider);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('정산 방식이 저장되었습니다.')),
     );
