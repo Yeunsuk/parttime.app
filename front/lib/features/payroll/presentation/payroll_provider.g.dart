@@ -28,7 +28,7 @@ final class WorkplaceRecordsProvider
   }) : super(
          retry: null,
          name: r'workplaceRecordsProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -66,7 +66,7 @@ final class WorkplaceRecordsProvider
   }
 }
 
-String _$workplaceRecordsHash() => r'c9b36b2c00790410f3e76d65bbb725c2716f857f';
+String _$workplaceRecordsHash() => r'c01dc623548441550170d5f21f65454b10189bac';
 
 final class WorkplaceRecordsFamily extends $Family
     with
@@ -80,7 +80,7 @@ final class WorkplaceRecordsFamily extends $Family
         name: r'workplaceRecordsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   WorkplaceRecordsProvider call(PayrollParam param) =>
@@ -109,7 +109,7 @@ final class WorkerDetailProvider
   }) : super(
          retry: null,
          name: r'workerDetailProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -147,7 +147,7 @@ final class WorkerDetailProvider
   }
 }
 
-String _$workerDetailHash() => r'11986b7a93448ffe83eb8a3ed2d23a9160ddf9a2';
+String _$workerDetailHash() => r'6b0e7b1afdedcc2fa7d6a460c32de4d8e1f399f2';
 
 final class WorkerDetailFamily extends $Family
     with
@@ -161,7 +161,7 @@ final class WorkerDetailFamily extends $Family
         name: r'workerDetailProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   WorkerDetailProvider call(WorkerDetailParam param) =>

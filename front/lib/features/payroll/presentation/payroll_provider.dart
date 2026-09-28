@@ -12,8 +12,10 @@ typedef WorkerDetailParam = ({
   int month
 });
 
-// 근무지 전체 근로자 근무기록 (달력용)
-@riverpod
+// 근무지 전체 근로자 근무기록 (달력용). workerDetail과 마찬가지로 keepAlive — 근로자
+// 상세 화면을 오갈 때마다(뒤로가기 등 watcher가 없어지는 시점) 캐시가 버려져 매번 새로
+// 네트워크를 타던 것을 막는다. 근무기록 변경 시 RecordModify가 명시적으로 invalidate한다.
+@Riverpod(keepAlive: true)
 Future<List<PayrollDetailModel>> workplaceRecords(
   Ref ref,
   PayrollParam param,
@@ -25,7 +27,9 @@ Future<List<PayrollDetailModel>> workplaceRecords(
       );
 }
 
-@riverpod
+// 근로자 상세 근무기록. WorkerDetailScreen을 열 때마다(뒤로가기 후 재진입 시 autoDispose
+// 기본값이면 캐시가 버려져) 매번 네트워크를 새로 타던 것을 keepAlive로 막는다.
+@Riverpod(keepAlive: true)
 Future<List<PayrollDetailModel>> workerDetail(
   Ref ref,
   WorkerDetailParam param,
