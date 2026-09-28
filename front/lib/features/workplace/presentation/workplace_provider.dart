@@ -62,8 +62,12 @@ class MyWorkplaces extends _$MyWorkplaces {
   }
 }
 
-// 근무지 소속 근로자 목록 (사장 전용)
-@riverpod
+// 근무지 소속 근로자 목록 (사장 전용). "직원 관리"/"근무기록 추가" 다이얼로그를 열 때마다
+// watch되는데, 기본값인 autoDispose면 다이얼로그를 닫는 순간(더 이상 아무도 watch 안 함)
+// 캐시가 버려져서 다음에 열 때마다 매번 새로 네트워크를 탄다(Tailscale Funnel 경유 시
+// 200ms~수초). keepAlive로 고정해서 한 번 받으면 재사용하고, 실제로 목록이 바뀌는
+// 지점(MemberManagement._invalidateIfSuccess 등)에서만 명시적으로 invalidate한다.
+@Riverpod(keepAlive: true)
 Future<List<WorkerModel>> workplaceWorkers(
   Ref ref,
   int workplaceId,

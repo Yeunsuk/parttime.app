@@ -77,7 +77,7 @@ final class WorkplaceWorkersProvider
   }) : super(
          retry: null,
          name: r'workplaceWorkersProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -115,7 +115,7 @@ final class WorkplaceWorkersProvider
   }
 }
 
-String _$workplaceWorkersHash() => r'6ffdad522cdf641d4694ab517f85ecc355b8d96e';
+String _$workplaceWorkersHash() => r'71e61d08a375bc499f351a10f339328d9868a98a';
 
 final class WorkplaceWorkersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<WorkerModel>>, int> {
@@ -125,7 +125,7 @@ final class WorkplaceWorkersFamily extends $Family
         name: r'workplaceWorkersProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   WorkplaceWorkersProvider call(int workplaceId) =>
